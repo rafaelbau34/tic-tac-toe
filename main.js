@@ -1,4 +1,4 @@
-const cells = document.querySelectorAll(".cells");
+const cells = document.querySelectorAll(".cell");
 const gameStatus = document.querySelector(".gameStatus");
 const restartBtn = document.querySelector(".restart");
 const winPatterns = [
@@ -12,18 +12,73 @@ const winPatterns = [
   [2, 4, 6],
 ];
 
-const currentPlayer = "X";
-const hasStarted = false;
-const cellContent = ["", "", "", "", "", "", "", "", ""];
+let currentPlayer = "X";
+let hasStarted = false;
+let cellContent = ["", "", "", "", "", "", "", "", ""];
 
-function startGame() {}
+startGame();
 
-function changePlayer() {}
+function startGame() {
+  cells.forEach((cell) => cell.addEventListener("click", cellClick));
+  restartBtn.addEventListener("click", restartGame);
+  gameStatus.textContent = `${currentPlayer}'s turn`;
+  hasStarted = true;
+}
 
-function cellClick() {}
+function changePlayer() {
+  currentPlayer = currentPlayer == "X" ? "O" : "X";
+  gameStatus.textContent = `${currentPlayer}'s turn`;
+}
 
-function cellUpdate() {}
+function cellClick() {
+  const cellIndex = this.getAttribute("cellIndex");
 
-function whoWon() {}
+  if (cellContent[cellIndex] != "" || !hasStarted) {
+    return;
+  }
 
-function restartGame() {}
+  cellUpdate(this, cellIndex);
+  whoWon();
+}
+
+function cellUpdate(cell, index) {
+  cellContent[index] = currentPlayer;
+  cell.textContent = currentPlayer;
+}
+
+function whoWon() {
+  let hasWon = false;
+  for (let i = 0; i < winPatterns.length; i++) {
+    const each = winPatterns[i];
+    const each1 = cellContent[each[0]];
+    const each2 = cellContent[each[1]];
+    const each3 = cellContent[each[2]];
+
+    if (each1 == "" || each2 == "" || each3 == "") {
+      continue;
+    }
+
+    if (each1 == each2 && each2 == each3) {
+      hasWon = true;
+      break;
+    }
+  }
+
+  if (hasWon) {
+    gameStatus.textContent = `${currentPlayer} wins!`;
+    hasStarted = false;
+  } else if (!cellContent.includes("")) {
+    gameStatus.textContent = "It's a draw!";
+    hasStarted = false;
+  } else {
+    changePlayer();
+  }
+}
+
+function restartGame() {
+  currentPlayer = "X";
+  cellContent = ["", "", "", "", "", "", "", "", ""];
+  cells.forEach((cell) => (cell.textContent = ""));
+  gameStatus.textContent = `${currentPlayer}'s turn`;
+  hasStarted = true;
+}
